@@ -1,0 +1,48 @@
+## Visualización del archivo fnr_gene.fa
+# Se cambia de directorio dónde se encuentran los archivos de las secuencias:
+$ cd practica 7/
+# Posteriormente, se visualiza el archivo con el comando more:
+$ more fnr_gene.fa
+# Y con el comando grep se conoce cuántas secuencias contiene el archivo:
+$ grep “>” fnr_gene.fa | head
+# Por último, con el comando cat y el comando -n se obtuvo el número de línea en que empezaba cada gen:
+$ more fnr_gene.fa | cat -n | grep ">"
+## Separación de cada gen en un archivo diferente
+# Con la finalidad de tener cada secuencia en un archivo diferente, se utilizó el comando sed con su parámetro -n para indicar de qué línea a qué línea empezaba y terminaba la secuencia del gen:
+$ sed -n '1,21p' fnr_gene.fa > Ara_gene.fa
+$ sed -n '22,44p' fnr_gene.fa > fnr1_gene.fa
+$ sed -n '45,65p' fnr_gene.fa > Ory_gene.fa
+## Modificación de los archivos 
+# Con la finalidad de que el encabezado de cada secuencia no entrara en el conteo de G y C, se omitió con la ayuda del comando grep y su parámetro -v:
+$ grep -v ">" Ara_gene.fa
+$ grep -v ">" fnr1_gene.fa
+$ grep -v ">" Ory_gene.fa
+# Para contemplar qué tipo de caracteres ASCII contiene cada archivo, se utilizó el comando od con su parámetro -c:
+$ od -c Ara_gene.fa
+$ od -c fnr1_gene.fa
+$ od -c Ory_gene.fa
+# Se observó que había saltos de línea (\r y \n), por lo que se optó por quitarlos con los comandos sed y tr, y comprobar nuevamente con el comando od si éstos fueron eliminados correctamente:
+$ sed 's/\r//g' Ara_gene.fa | tr -d '\n' | od -c
+$ sed 's/\r//g' fnr1_gene.fa | tr -d '\n' | od -c
+$ sed 's/\r//g' Ory_gene.fa | tr -d '\n' | od -c
+# El resultado se guradó a un nuevo archivo:
+$ grep -v ">" Ara_gene.fa | sed 's/\r//g' | tr -d '\n' > Ara01_gene.fa
+$ grep -v ">" fnr1_gene.fa | sed 's/\r//g' | tr -d '\n' > fnr101_gene.fa
+$ grep -v ">" Ory_gene.fa | sed 's/\r//g' | tr -d '\n' > Ory01_gene.fa
+## Conteo de las guaninas (G) y citosinas (C) de cada archivo
+# Primero se realizó un recuento total de caracteres de los nuevos archivos creados:
+$ wc -c Ara01_gene.fa
+$ wc -c fnr101_gene.fa
+$ wc -c Ory01_gene.fa
+# Después, se sustituyeron las bases adenina (A) y timina (T) con el comando sed y sus parámetros para sustituirlos por nada y el parámetro g para hacerlo globalmente, se volvieron a contar los caracteres para compararlos con el resultado anterior:
+$ sed 's/T//g' Ara01_gene.fa | sed 's/A//g' | wc -c
+$ sed 's/T//g' fnr101_gene.fa | sed 's/A//g' | wc -c
+$ sed 's/T//g' Ory01_gene.fa | sed 's/A//g' | wc -c
+# Se hizo un recuento de las bases guanina (G) utilizando la línea de comando anterior y agregando nuevamente el comando sed sustituyendo (s) las C por nada y haciéndolo globalmente (g):
+$ sed 's/T//g' Ara01_gene.fa | sed 's/A//g' | sed 's/C//g' | wc -c
+$ sed 's/T//g' fnr101_gene.fa | sed 's/A//g' | sed 's/C//g' | wc -c
+$ sed 's/T//g' Ory01_gene.fa | sed 's/A//g' | sed 's/C//g' | wc -c
+# Finalmente, se hizo también un recuento de las bases citosina (C) utilizando la línea de comando anterior y sustituyendo C por G:
+$ sed 's/T//g' Ara01_gene.fa | sed 's/A//g' | sed 's/G//g' | wc -c
+$ sed 's/T//g' fnr101_gene.fa | sed 's/A//g' | sed 's/G//g' | wc -c
+$ sed 's/T//g' Ory01_gene.fa | sed 's/A//g' | sed 's/G//g' | wc -c
