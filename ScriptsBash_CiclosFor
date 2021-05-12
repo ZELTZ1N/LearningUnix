@@ -1,0 +1,31 @@
+#Para obtener los nombres de los organismos a los que pertenecen las secuencias, es necesario extraer la primera línea de cada archivo. Para ello se genera un script usando el editor de texto nano. 
+$ nano Blast
+#Se declara la variable ORGANISMO igual al resultado del comando dentro de los paréntesis. En este caso la impresión de los ficheros dentro de la carpeta practica9/ que corresponde a los archivos donde están almacenadas las secuencias.
+ORGANISMO=$(ls ./practica9/)
+
+#
+for ORGA in ${ORGANISMO[@]}; do
+        head -1 ./practica9/$ORGA | cut -d "[" -f2
+        
+done
+
+
+(base) guest18@sinaj:~/practica9/fasta$ more Blast1
+ORGANISMO=$(ls ./practica9/)
+declare -a TAXID=("9606" "8364" "9544" "9913" "10090" "9615" "7955" "9598")
+for ORGA in ${ORGANISMO[@]}; do
+        for ALING in ${TAXID[@]}; do
+                echo blastp -db db/refseq_protein -query practica9/$ORGA -taxids $ALING -outfmt 6 -out $ORGA'_'$ALING'.txt'
+done
+
+done
+(base) guest18@sinaj:~/practica9/fasta$ more Blast2
+
+ORGANISMO=$(ls ./practica9/)
+declare -a TAXID=("9606" "8364" "9544" "9913" "10090" "9615" "7955" "9598")
+for ORGA in ${ORGANISMO[@]}; do
+        for ALING in ${TAXID[@]}; do
+                head -1 $ORGA'_'$ALING'.txt'
+done
+
+done
