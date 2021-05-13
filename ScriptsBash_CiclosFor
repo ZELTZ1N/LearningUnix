@@ -1,33 +1,38 @@
-#Para obtener los nombres de los organismos a los que pertenecen las secuencias, es necesario extraer la primera línea de cada archivo. Para ello se genera un script usando el editor de texto nano. Un script de shell es un archivo que contiene una serie de comandos. Shell lee este archivo y ejecuta los comandos como si se hubieran introducido directamente en la línea de comandos.
-$ nano Blast
-#Se declara la variable ORGANISMO igual al resultado del comando dentro de los paréntesis. En este caso la impresión de los ficheros dentro de la carpeta practica9/ que corresponde a los archivos donde están almacenadas las secuencias.
-ORGANISMO=$(ls ./practica9/)
+$ nano Blast #Para obtener los nombres de los organismos a los que pertenecen las secuencias, es necesario extraer la primera línea de cada archivo. Para ello se genera un script usando el editor de texto nano. Un script de shell es un archivo que contiene una serie de comandos. Shell lee este archivo y ejecuta los comandos como si se hubieran introducido directamente en la línea de comandos.
 
-#Un "ciclo for" es una declaración del lenguaje de programación bash que permite que el código se ejecute repetidamente. Declarando una variable que ocurre en dependencia de otra, normalmente vector declarado antes del ciclo for, en este caso ORGANISMO.
-for ORGA in ${ORGANISMO[@]}; do
-        head -1 ./practica9/$ORGA | cut -d "[" -f2
-#Con el comando head -1 dentro del ciclo for se obtiene la primera línea de cada archivo, que es en dónde se encuentra el nombre del organismo al que pertenece la secuencia proteica.
-done #En la syntaxis del ciclo for en bash es necesario, escribir do y done para indicar donde inicia y termina el ciclo.
+	ORGANISMO=$(ls ./practica9/) #Se declara la variable ORGANISMO igual al resultado del comando dentro de los paréntesis. En este caso la impresión de los ficheros dentro de la carpeta practica9/ que corresponde a los archivos donde están almacenadas las secuencias.
 
-$bash Blast #Cuando se ha terminado de escribir el script, una de las formas de ejecutarlo es con el comando bash.
+	for ORGA in ${ORGANISMO[@]}; do  #Un "ciclo for" es una declaración del lenguaje de programació	bash que permite que el código se ejecute repetidamente. Declarando una variable que ocurre en dependencia de otra, normalmente vector declarado antes del ciclo for, en este caso ORGANISMO.
+        	head -1 ./practica9/$ORGA | cut -d "[" -f2 #Con el comando head -1 dentro del ciclo for	obtiene la primera línea de cada archivo, que es en dónde se encuentra el nombre del organismo al que pertenece la secuencia proteica.
 
+	done #En la syntaxis del ciclo for en bash es necesario, escribir do y done para indicar donde inicia y termina el ciclo.
 
-(base) guest18@sinaj:~/practica9/fasta$ more Blast1
-ORGANISMO=$(ls ./practica9/)
-declare -a TAXID=("9606" "8364" "9544" "9913" "10090" "9615" "7955" "9598")
-for ORGA in ${ORGANISMO[@]}; do
-        for ALING in ${TAXID[@]}; do
-                echo blastp -db db/refseq_protein -query practica9/$ORGA -taxids $ALING -outfmt 6 -out $ORGA'_'$ALING'.txt'
-done
+$ bash Blast #Cuando se ha terminado de escribir el script, una de las formas de ejecutarlo es con el comando bash.
 
-done
-(base) guest18@sinaj:~/practica9/fasta$ more Blast2
+$ nano Blast1 #Se crea otro script para llevar a cabo la comparación por blastp
+	ORGANISMO=$(ls ./practica9/) #La variable ORGANISMO se mantiene pues corresponde al listado de cada una de las secuencias a comparar.
+	declare -a TAXID=("9606" "8364" "9544" "9913" "10090" "9615" "7955" "9598") #Se crea un vector que contiene la lista de los TAXID de los organismos contra los que se va a comparar las secuencias.
+	for ORGA in ${ORGANISMO[@]}; do #Se utiliza un cicloFor para tomar cada una de las secuencias.
+        	for ALING in ${TAXID[@]}; do #Se crea otro cicloFor anidado en el primero, para que ahora tome cada uno de los TAXID. DE esta forma se obtienen todas las combinaciones posibles de secuencias y organismos.
+                	blastp -db db/refseq_protein -query practica9/$ORGA -taxids $ALING -outfmt 6 -out $ORGA'_'$ALING'.txt' #Este comando es para realizar alineamientos usando BLAST (Basic Local Alignment Search Tool) del NCBI.
+                	#La syntaxis básica de BLAST consiste en indicar si es proteína o nucleotido. En este caso son secuencias proteícas por lo que se usa el comando blastp; -db es para indicar la base datos; -query es la secuencia que va a alinearse, aquí se usa la variable ORGA para que se tomen cada una de las secuencias; -taxids es el TAXID del organismo en el que se va a comparar, aquí se usa la variable ALING para que se usen cada una de las TAXID de los organismos; -outfmt 6 indica que se obtiene el resultado en un formato tabular y -out es el archivo en dónde se escribirá el resultado del alineamiento.
+		done
 
-ORGANISMO=$(ls ./practica9/)
-declare -a TAXID=("9606" "8364" "9544" "9913" "10090" "9615" "7955" "9598")
-for ORGA in ${ORGANISMO[@]}; do
-        for ALING in ${TAXID[@]}; do
-                head -1 $ORGA'_'$ALING'.txt'
-done
+	done #Debe haber dos done, ya que cada uno cierra un cicloFor.
+	#Para verificar que el script esté haciendo lo que se planea, se puede agregar un echo antes del comando, con esto en lugar de correr el comando imprime todos los comandos generados por el cicloFor y puede revisarse que se estén incluyendo todas las combinaciones de las secuencias y taxid.
 
-done
+$ bash Blast1
+
+$ nano Blast2 #Por último se crea un script para obtener de forma automática los Best Hit (es decir la primera línea del resultado) de cada uno de los alineamientos realizados por blastp
+
+	ORGANISMO=$(ls ./practica9/)
+	declare -a TAXID=("9606" "8364" "9544" "9913" "10090" "9615" "7955" "9598") 
+	#Se usan las mismas variables que en los scripts anteriores.
+	for ORGA in ${ORGANISMO[@]}; do
+        	for ALING in ${TAXID[@]}; do #Se usa nuevamente un dos ciclosFor anidados.
+                	head -1 $ORGA'_'$ALING'.txt' #Con este comando obtendremos la primera linea de cada alineamiento. 
+		done
+
+	done
+
+$ bash Blast2 > CiclosFor.csv #Este comando va a almacenar el resultado del script anterior en el archivo CiclosFor.csv
