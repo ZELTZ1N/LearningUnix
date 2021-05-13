@@ -1,13 +1,15 @@
-#Para obtener los nombres de los organismos a los que pertenecen las secuencias, es necesario extraer la primera línea de cada archivo. Para ello se genera un script usando el editor de texto nano. 
+#Para obtener los nombres de los organismos a los que pertenecen las secuencias, es necesario extraer la primera línea de cada archivo. Para ello se genera un script usando el editor de texto nano. Un script de shell es un archivo que contiene una serie de comandos. Shell lee este archivo y ejecuta los comandos como si se hubieran introducido directamente en la línea de comandos.
 $ nano Blast
 #Se declara la variable ORGANISMO igual al resultado del comando dentro de los paréntesis. En este caso la impresión de los ficheros dentro de la carpeta practica9/ que corresponde a los archivos donde están almacenadas las secuencias.
 ORGANISMO=$(ls ./practica9/)
 
-#
+#Un "ciclo for" es una declaración del lenguaje de programación bash que permite que el código se ejecute repetidamente. Declarando una variable que ocurre en dependencia de otra, normalmente vector declarado antes del ciclo for, en este caso ORGANISMO.
 for ORGA in ${ORGANISMO[@]}; do
         head -1 ./practica9/$ORGA | cut -d "[" -f2
-        
-done
+#Con el comando head -1 dentro del ciclo for se obtiene la primera línea de cada archivo, que es en dónde se encuentra el nombre del organismo al que pertenece la secuencia proteica.
+done #En la syntaxis del ciclo for en bash es necesario, escribir do y done para indicar donde inicia y termina el ciclo.
+
+$bash Blast #Cuando se ha terminado de escribir el script, una de las formas de ejecutarlo es con el comando bash.
 
 
 (base) guest18@sinaj:~/practica9/fasta$ more Blast1
