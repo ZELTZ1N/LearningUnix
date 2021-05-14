@@ -3,7 +3,7 @@ $ nano Blast #Para obtener los nombres de los organismos a los que pertenecen la
 	ORGANISMO=$(ls ./practica9/) #Se declara la variable ORGANISMO igual al resultado del comando dentro de los paréntesis. En este caso la impresión de los ficheros dentro de la carpeta practica9/ que corresponde a los archivos donde están almacenadas las secuencias.
 
 	for ORGA in ${ORGANISMO[@]}; do  #Un "ciclo for" es una declaración del lenguaje de programació	bash que permite que el código se ejecute repetidamente. Declarando una variable que ocurre en dependencia de otra, normalmente vector declarado antes del ciclo for, en este caso ORGANISMO.
-        	head -1 ./practica9/$ORGA | cut -d "[" -f2 #Con el comando head -1 dentro del ciclo for	obtiene la primera línea de cada archivo, que es en dónde se encuentra el nombre del organismo al que pertenece la secuencia proteica.
+        	head -1 ./practica9/$ORGA | cut -d "[" -f2 | tr -d ] #Con el comando head -1 dentro del ciclo for	obtiene la primera línea de cada archivo, que es en dónde se encuentra el nombre del organismo al que pertenece la secuencia proteica.
 
 	done #En la syntaxis del ciclo for en bash es necesario, escribir do y done para indicar donde inicia y termina el ciclo.
 
