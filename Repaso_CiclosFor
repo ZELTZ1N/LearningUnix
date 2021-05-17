@@ -1,0 +1,15 @@
+$ nano Genes #Se genera un script usando el editor de texto nano que Shell leerá y ejecutará los comandos como si se hubieran introducido directamente en la línea de comandos.
+	TF=$(grep -v "#" network_tf_gene.txt | cut -f1 | sort -u) #Se define la variable TF para obtener un listado de todos los TFs que hay en la base de datos.
+	EFFECT=$(grep -v "#" network_tf_gene.txt | cut -f3 | sort -u) #Se define la variable EFFECT para obtener un listado de todos los posibles efectos que podrían tener esos TFs.
+
+		for TFS in ${TF[@]}; do #El primer ciclFor va a tomar a cada uno de los TFs enlistados.
+        	for EFF in ${EFFECT[@]}; do #El segundo cicloFor va a tomar cada uno de los efectos posibles para cada uno de los TFs enlistados.
+                CONTEO=$(awk -F "\t" -v TFS="$TFS" -v EFF="$EFF" '$1 == TFS && $3 == EFF {print $2}' network_tf_gene.txt | sort -u | wc -l) #Con este comando se va a imprimir el número de genes sobre los cuáles se tiene un tipo de efecto por TF.
+                
+                GENES=$(awk -F "\t" -v TFS="$TFS" -v EFF="$EFF" '$1 == TFS && $3 == EFF {print $2}' network_tf_gene.txt | sort -u | tr '\n' ',') #Con este comando se imprimen los genes sobre los cuáles se tiene un tipo de efecto por TF, de ser más de uno se enlistarán separados por comas.
+
+                echo $TFS $EFF $CONTEO $GENES #Imprime el número de genes y los genes en los cuales tiene cada tipo de efecto para cada TF.
+	done
+	done
+
+$ bash Genes #Para ejecutar el código del script contenido dentro del archivo Genes.
