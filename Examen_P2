@@ -1,0 +1,25 @@
+GENES=$(grep "q11.2" data/genes-go.txt | grep -v "Gene" | cut -f1 | sort -u) 
+#Se declara la variable GENES la cual contiene el resultado del comando dentro de los paréntesis. En este caso el listado de los genes que se encuentran en la banda q11.2, esto se obtiene con el comando grep "q11.2" para obtener sólo las líneas con q11.2, grep -v elimina el encabezado y con cut -f1 y sort -u obtenemos la información de la columna 1 (donde se encuentran los nombre de los genes) eliminando los repetidos.  
+for GEN in ${GENES[@]}; do 
+#Se usa un ciclo FOR para realizar un análisis por cada GEN dentro de la variable GENES.
+        NUMBER=$(awk -F "\t" -v GEN="$GEN" '$1 == GEN && $5 == "q11.2" && $3 != "" {print $3}' data/genes-go.txt | sort -u | wc -l)
+        #Se declara la variable NUMBER la cuál contiente el número de GOs asoaciados (que se encuentran en la columna 3) a un gen. Usando AWK es necesario ocupar la opción -v para establecer la variable de BASH como variable de AWK. Se indica que si la columna 1 es igual al nombre de gen que se está evaluando, y la columna 5 es igual a q11.2 (para confirmar que sea solo los genes de esa banda) y la columna 3 no se encuentre vacía, entonces imprima la columna 3. Se ordenan, eliminan repetidos y se cuenta el número de líneas. Este valor se almacena en NUMBER.
+        GOS=$(awk -F "\t" -v GEN="$GEN" '$1 == GEN && $5 == "q11.2" && $3 != "" {print $3}' data/genes-go.txt | sort -u | tr '\n' '|')
+        #Se declara la variable GOS la cuál contiene el nombre de cada uno de los GOS asociados a un gen separados por |. Se utiliza casi el mismo comando que para definir la variable NUMBER, solo que en este caso en lugar de contar las líneas se reemplaza los saltos de línea (\n) usando el comando tr con | para obetener el output solicitado.
+        echo $GEN $NUMBER $GOS >> Pregunta2.csv
+        #Se imprime para cada GEN contenido en GENES, el nombre del gen, el número de GOs y los GOs asociados a ese gen. Está información está almacenada en las variables GEN, NUMBER y GOS respectivamente. Se genera un archivo llamado Pregunta2.csv que contiene el resultado de todas las iteraciones. 
+done
+
+MIAU=$(sort -k2,2nr Pregunta2.csv | head -1 | awk -F " " '{print $1}') 
+#Se ordena de forma númerica y en sentido reverso (mayor a menor) el archivo generado a partir del ciclo FOR anterior por la columna 2, que es dónde se encuentra el número de GOs asociados a cada gen. Luego obtenemos la primera línea con head -1 y el comando AWK lo usamos para definir el separador de columnas como espacio y se imprime la columna 1, ésta se almacena en la variable MIAU.
+MIAU2=$(sort -k2,2nr Pregunta2.csv | head -1 | awk -F " " '{print $2}')
+#Se ordena de igual forma el archivo Pregunta2.csv y se obtiene ahora la columna 2 para que imprima el número de GOs asociados en el gen con más GOs asociados, se almacena en la variable MIAU2.
+MIAU3=$(sort -k2,2nr Pregunta2.csv | head -1 | awk -F " " '{$1 = ""; print}' | awk -F " " '{$1 = ""; print}')
+#Por último se ordena igualmente el archivo para obtener la información del gen con más GOs asociados, en este caso con el comando dentro de la instrucción de AWK se considera la primera columna vacía, e imprime todo lo demás. Se repite esta instrucción para quitar la columna 1 y 2 y quedarnos con todo el contenido de la columna 3 que al tener información separada por espacios no se podía imprimir de forma directa como las otras dos columnas. 
+
+echo El gen en la banda q11.2 con mayor cantidad de GOs asociados es: $MIAU
+echo Con un total de $MIAU2 GOs
+echo Los cuales son:
+echo $MIAU3
+
+#Finalmente se da la istrucción de que se imprima el resultado de cada una de las variables MIAU explicando qué contiene cada una y resolviendo de forma directa las preguntas.
