@@ -1,0 +1,29 @@
+ARCHIVOS=$(ls ./data) 
+#Se declara la variable ARCHIVOS la cual contiene el resultado del comando dentro de los paréntesis. En este caso los archivos que se encuentran en la carpeta data.
+
+for ARCHIVO in ${ARCHIVOS[@]}; do 
+#Se crea un ciclo FOR con el objetivo de realizar un análisis por cada ARCHIVO dentro de ARCHIVOS.
+        GENES=$(cut -f1 ./data/$ARCHIVO | grep -v "Gene" | sort -u | wc -l) 
+        #Se realiza el conteo de genes extrayendo la primera columna (donde se encuentran los genes), quitando el encabezado para posteriormente ordenarlos y remover los repetidos para finalmente contar las líneas que darán el total de genes incluidos en el archivo.
+
+        echo "$ARCHIVO tiene $GENES genes" 
+        #De esta forma se imprime el nombre de cada archivo en la carpeta data con el número de genes que contiene cada uno.
+
+        cut -f1 ./data/$ARCHIVO | sort -u >> ./data/genes.csv 
+        #Para comprobar que los genes que contienen los archivos son los mismos y no solo tienen la misma cantidad, se genera un archivo que contenga ambas listas de genes.
+        COMPARACION=$(sort -u ./data/genes.csv | grep -v "Gene" | wc -l) 
+        #Se ordenan las listas y eliminan repetidos y encabezados, se cuenta el número de líneas y se almacena en la variable COMPARACION.  
+done
+echo "Los genes que coinciden en los archivos son $COMPARACION" 
+#Por lo que se puede imprimir #Se puede concluir que el número de líneas que contenga el archivo genes.csv son los genes que coinciden en ambos archivos. Si éste coincide con la cantidad de genes que contienen los archivos significa que son los mismos genes.
+rm ./data/genes.csv 
+#Se elimina el archivo creado para mantener orden en el directorio.
+
+----------
+
+if [ "$GENES" -eq "$COMPARACION" ]; then  
+        echo "Son los mismos genes"
+else
+        echo "Son diferentes genes"
+fi
+#La estructura if/else ejecuta una serie de comandos dependiendo si una cierta condicion se cumple o no. En este caso se usa de forma muy sencilla para que haga una comparación entre el valor de las variables.
