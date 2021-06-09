@@ -1,0 +1,49 @@
+GEN_AFFY=$(grep -v "Gene" data/genes-arrays.txt | awk '$2 != "" {print $1}'| sort -u)
+#Se declara la variable GEN_AFFY la cual contiene el número de genes cubiertos por el microarreglo AFFY, estos se obtiene a partir del documento genes-arrays.txt y con el comando AWK se indica que si la columna 2 (que es dónde se encuentran las sondas de AFFY) NO se encuentra vacía, entonces imprima la columna 1, que es dónde se encuentran los nombres de los genes. Posteriormente se ordenan y se eliminan los repetidos y finalmente se cuentan las líneas para saber cuántos genes cubre el microarreglo AFFY.
+GEN_ILLUMINA=$(grep -v "Gene" data/genes-arrays.txt | awk '$3 != "" {print $1}'| sort -u)
+# Se declara la variable GEN_ILLUMINA en la que se encuentra el número de genes cubiertos por el microarreglo ILLUMINA. Se obtiene de forma similar que para AFFY, solamente cambia el número de columna en la que se analiza si está vacía, en este caso sería la columna 3.
+
+for AFFY in ${GEN_AFFY[@]}; do
+#Se usa un ciclo FOR para obtener las funciones (Go name) y Go accesion de cada gen cubierto por el microarreglo AFFY, almacenados en la variable GEN_AFFY
+        awk -F "\t" -v AFFY="$AFFY" '$1 == AFFY && $3 != "" {print $3}' data/genes-go.txt >> FUNCIONES_AFFY.csv
+        #Se indica que si la columna 1 es igual al nombre de gen que es cubierto por el microarreglo AFFY, y la columna 3 no se encuentre vacía, entonces imprima la columna 3, que es dónde se encuentran las funciones. Se almacena la información para cada gen en el archivo llamado FUNCIONES_AFFY.csv
+        FUNCIONES_AFFY=$(sort -u FUNCIONES_AFFY.csv | wc -l)
+        #El archivo FUNCIONES_AFFY.csv se ordena y eliminan repetidos, se cuenta el número de líneas y se almacena el valor en la variable FUNCIONES_AFFY, éste representa el número de funciones cubiertas por el microarreglo AFFY.
+        
+        awk -F "\t" -v AFFY="$AFFY" '$1 == AFFY && $6 != "" {print $6}' data/genes-go.txt >> GOAS_AFFY.csv
+        #Se indica que si la columna 1 es igual al nombre de gen que es cubierto por el microarreglo AFFY, y la columna 3 no se encuentre vacía, entonces imprima la columna 6, que es dónde se encuentran los GO accesion. Se almacena la información para cada gen en el archivo llamado GOAS_AFFY.csv
+        GOAS_AFFY=$(sort -u GOAS_AFFY.csv | wc -l)
+        #El archivo GOAS_AFFY.csv se ordena y eliminan repetidos, se cuenta el número de líneas y se almacena el valor en la variable GOAS_AFFY, éste representa el número de GO accesion cubiertas por el microarreglo AFFY.
+done
+
+for ILLUMINA in ${GEN_ILLUMINA[@]}; do
+#Se realiza un ciclo FOR con las mismas instrucciones que el anterior, solo que ahora usaremos el vector GEN_ILLUMINA, para obtener las funciones y GO acccesion cubiertas por el microarreglo ILLUMINA.
+        awk -F "\t" -v ILLUMINA="$ILLUMINA" '$1 == ILLUMINA && $3 != "" {print $3}' data/genes-go.txt >> FUNCIONES_ILLUMINA.csv
+        FUNCIONES_ILLUMINA=$(sort -u FUNCIONES_ILLUMINA.csv | wc -l)
+
+        awk -F "\t" -v ILLUMINA="$ILLUMINA" '$1 == ILLUMINA && $6 != "" {print $6}' data/genes-go.txt >> GOAS_ILLUMINA.csv
+        GOAS_ILLUMINA=$(sort -u GOAS_ILLUMINA.csv | wc -l)
+done
+
+if [ "$FUNCIONES_AFFY" -eq "$FUNCIONES_ILLUMINA" ]
+#Se usa if/else de la misma forma que en la pregunta anterior. Para comparar los valores contenidos en la variable y que imprima según corresponda si tienen el mismo valor o cuál variable es mayor que la otra. Indicando cuál microarreglo cubre más funciones.
+        then
+        echo "AFFY e ILLUMINA cubren la misma cantidad de funciones."
+        else
+        if  [ "$FUNCIONES_AFFY" -gt "$FUNCIONES_ILLUMINA" ]
+                then
+                echo "AFFY cubre mayor cantidad de funciones."
+                else
+                echo "ILLUMINA cubre mayor cantidad de funciones."
+        fi;
+fi;
+
+#Finalmente a forma de conclusión se pueden imprimir los valores de las variables.
+echo "Al microarrelgo AFFY se asocian $FUNCIONES_AFFY GOsTerm y $GOAS_AFFY GOsAccesion"
+echo "Mientras que al microarreglo ILLUMINA se asocian $FUNCIONES_ILLUMINA GOsTerm y $GOAS_ILLUMINA GOsAccesion"
+
+#Se eliminan los archivos generados para mantener el orden en el directorio.
+rm FUNCIONES_AFFY.csv
+rm FUNCIONES_ILLUMINA.csv
+rm GOAS_AFFY.csv
+rm GOAS_ILLUMINA.csv
