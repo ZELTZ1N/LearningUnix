@@ -1,0 +1,43 @@
+GENES=$(grep -v "Gene" data/genes-go.txt | grep "q22.1" | cut -f1 | sort -u)
+#Se declara la variable GENES la cual contiene el resultado del comando dentro de los paréntesis. En este caso el listado de los genes que se encuentran en la banda q22.1, esto se obtiene con el comando grep "q22.1" para obtener sólo las líneas con q22.1, grep -v elimina el encabezado y con cut -f1 y sort -u obtenemos la información de la columna 1 (donde se encuentran los nombre de los genes) eliminando los repetidos.
+for GEN in ${GENES[@]}; do
+#Se crea un ciclo FOR para obtener el resultado de cada GEN dentro de GENES. 
+        awk -F "\t" -v GEN="$GEN" '$1 == GEN && $6 != "" {print $6}' data/genes-go.txt >> GOAS.csv
+        #Para cada GEN dentro de GENES se extrae la columna  6 siempre y cuando no se encuentre vacía y se almacena en un archivo llamado GOAS.csv
+done
+
+GO=$(sort -u GOAS.csv)
+#Se declara la variable GO que contendrá la lista de los GOAS obtenidos, se han ordenado y eliminado los repetidos.
+
+for ASGO in ${GO[@]}; do
+#Se crea un ciclo FOR para realizar el análisis en cada GO Asociado (ASGO) dentro de GO.
+        ASGEN=$(awk -F "\t" -v ASGO="$ASGO" '$6 == ASGO {print $1}' data/genes-go.txt | sort -u | wc -l)
+        #En la variable ASGEN se almacenará el número de líneas que corresponderá al número de genes asociados a cada ASGO dentro de GO. 
+        NUMBERASGEN=$(awk -F "\t" -v ASGO="$ASGO" '$6 == ASGO {print $1}' data/genes-go.txt | sort -u | tr '\n' ',')
+        #La variable NUMBERASGEN contendrá los genes asociados a cada ASGO dentro de GO separados por ","
+
+        BANDA=$(awk -F "\t" -v ASGO="$ASGO" '$6 == ASGO {print $5}' data/genes-go.txt | sort -u | wc -l)
+        #En la variable BANDA se almacena la cantidad de bandas en las que hay genes asociados a cada GO contenidos en la variable GO.
+        NUMBERBANDA=$(awk -F "\t" -v ASGO="$ASGO" '$6 == ASGO {print $5}' data/genes-go.txt | sort -u | tr '\n' '|')
+        #La variable NUMERBANDA contendrá el nombre de las bandas separadas por "|" en las que hay genes asociados a cada GO contenidos en la variable GO.
+
+
+        echo $ASGO $ASGEN $NUMBERASGEN $BANDA $NUMBERBANDA >> Pregunta3.csv
+        #Se imprime para cada GO asociado contenido en GO, el valor de ASGO, ASGEN, NUMBERASGEN, BANDA y NUMBERBANDA. Se guarda en un archivo llamado Pregunta3.csv
+done
+
+MIAU=$(sort -k2,2nr Pregunta3.csv | head -1 | awk -F " " '{print $1}')
+#Se ordena de forma númerica y en sentido reverso (mayor a menor) el archivo generado a partir del ciclo FOR anterior por la columna 2, que es dónde se encuentra el número de genes asociados a cada GO. Luego obtenemos la primera línea con head -1 y el comando AWK lo usamos para definir el separador de columnas como espacio y se imprime la columna 1, donde se encuentra el nombre del GO y ésta se almacena en la variable MIAU.
+MIAU2=$(sort -k2,2nr Pregunta3.csv | head -1 | awk -F " " '{print $3}')
+#Se ordena de igual forma el archivo Pregunta3.csv y se obtiene ahora la columna 3 para que imprima los genes asociados al GO con mayor nnúmero de genes, se almacena en la variable MIAU2.
+MIAU3=$(sort -k4,4nr Pregunta3.csv | head -1 | awk -F " " '{print $1}')
+#Se ordena de forma númerica y en sentido reverso (mayor a menor) el archivo generado a partir del ciclo FOR anterior por la columna 4, que es dónde se encuentra el número de Bandas en dónde hay genes asociados a cada GO. Luego obtenemos la primera línea con head -1 y el comando AWK lo usamos para definir el separador de columnas como espacio y se imprime la columna 1, donde se encuentra el nombre del GO y ésta se almacena en la variable MIAU3.
+MIAU4=$(sort -k4,4nr Pregunta3.csv | head -1 | awk -F " " '{print $5}')
+#Se ordena de igual forma el archivo Pregunta3.csv y se obtiene ahora la columna 5 para que imprima las bandas donde hay genes asociados al GO y se almacena en la variable MIAU4.
+
+echo El GO con mayor cantidad de genes es: $MIAU, los cuales son:
+echo $MIAU2
+echo El GO con genes en un mayor número de bandas es: $MIAU3, las cuales son:
+echo $MIAU4
+
+#Finalmente se da la istrucción de que se imprima el resultado de cada una de las variables MIAU explicando qué contiene cada una y resolviendo de forma directa las preguntas.
