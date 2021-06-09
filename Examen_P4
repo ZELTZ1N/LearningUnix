@@ -1,0 +1,28 @@
+AFFY=$(grep -v "Gene" data/genes-arrays.txt | awk '$2 != "" {print $1}'| sort -u | wc -l)
+#Se declara la variable AFFY que contendrá el número de genes cubiertos por el microarreglo, estos se obtiene a partir del documento genes-arrays.txt y con el comando AWK se indica que si la columna 2 (que es dónde se encuentran las sondas de AFFY) NO se encuentra vacía, entonces imprima la columna 1, que es dónde se encuentran los nombres de los genes. Posteriormente se ordenan y se eliminan los repetidos y finalmente se cuentan las líneas para saber cuántos genes cubre el microarreglo AFFY.
+ILLUMINA=$(grep -v "Gene" data/genes-arrays.txt | awk '$3 != "" {print $1}'| sort -u | wc -l)
+#Se declara la variable ILLUMINA en la que se encuentra el número de genes cubiertos por el microarreglo. Se obtiene de forma similar que para AFFY, solamente cambia el número de columna en la que se analiza si está vacía, en este caso sería la columna 3. 
+if [ "$AFFY" -eq "$ILLUMINA" ]
+#La estructura if/else ejecuta una serie de comandos dependiendo si una cierta condicion se cumple o no. En este caso se usa de forma muy sencilla para que haga una comparación entre el valor de las variables. La opción -eq evalúa si el valor contenido en las variables es igual.  
+
+        then
+        #Con then le damos la instrucción a seguir si es verdadero. En este caso que imprima la leyenda: "AFFY e ILLUMINA cubren la misma cantidad de genes."
+        echo "AFFY e ILLUMINA cubren la misma cantidad de genes." 
+        else
+        #Con else le damos la instrucción a seguir si es falso. En este caso agregamos otra estructura if.
+        if  [ "$AFFY" -gt "$ILLUMINA" ]
+        #Con -gt se evalúa si el valor contenido en la primera variable es mayor al de la segunda variable.
+                then
+                #Si es verdadero, imprime la leyenda: "AFFY cubre mayor cantidad de genes que ILLUMINA."
+                echo "AFFY cubre mayor cantidad de genes que ILLUMINA."
+                else
+                #Si es falso, imprime la leyenda: "ILLUMINA cubre mayor cantidad de genes que AFFY."
+                echo "ILLUMINA cubre mayor cantidad de genes que AFFY."
+        fi;
+        #Con fi se cierra el segundo if
+fi;
+#Se cierra el primer if
+
+#Finalmente a forma de conclusión se pueden imprimir los valores de las variables.
+echo "ILLUMINA cubre $ILLUMINA genes"
+echo "AFFY cubre $AFFY genes"
